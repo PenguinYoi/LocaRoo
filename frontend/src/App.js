@@ -39,16 +39,20 @@ function App() {
     return () => subscription.unsubscribe();
   }, [category]);
 
-  const fetchData = async (sortByRating = false) => {
-    try {
-      const response = await axios.get(`${API_URL}/businesses`, {
-        params: { category, sort_by_rating: sortByRating }
-      });
-      setBusinesses(response.data);
-    } catch (err) {
-      console.error("Backend Connection Error");
-    }
-  };
+const fetchData = async (sortByRating = false) => {
+  try {
+    // FIX: If category is an array (Food & Drink), we send an empty string 
+    // to the backend to get ALL businesses, then let the frontend filter them.
+    const queryVal = Array.isArray(category) ? "" : category;
+
+    const response = await axios.get(`${API_URL}/businesses`, {
+      params: { category: queryVal, sort_by_rating: sortByRating }
+    });
+    setBusinesses(response.data);
+  } catch (err) {
+    console.error("Backend Connection Error");
+  }
+};
 
   const toggleDrawer = async (bizId) => {
     const isOpening = !openDrawers[bizId];
@@ -144,13 +148,26 @@ function App() {
     }
   };
 
-  const filteredBusinesses = businesses.filter(b =>
-    b.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filteredBusinesses = businesses.filter(b => {
+    const matchesSearch = b.name.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Category logic
+    let matchesCategory = true;
+    if (category !== "") {
+      if (Array.isArray(category)) {
+        // Checks if "Food" or "Drink" is inside our selected array
+        matchesCategory = category.includes(b.category);
+      } else {
+        matchesCategory = b.category === category;
+      }
+    }
+    
+    return matchesSearch && matchesCategory;
+  });
 
   const navItems = [
     { label: "All businesses", value: "",         dot: "dot-all" },
-    { label: "Food & drink",   value: "Food",     dot: "dot-food" },
+    { label: "Food & drink",   value: ["Food", "Drink"],     dot: "dot-food" },
     { label: "Retail",         value: "Retail",   dot: "dot-retail" },
     { label: "Services",       value: "Services", dot: "dot-services" },
   ];
@@ -211,10 +228,16 @@ function App() {
         </div>
         <nav className="sidebar-nav">
           <p className="nav-section-label">Browse</p>
-          {navItems.map(item => (
+        {navItems.map(item => (
             <button
-              key={item.value}
-              className={`nav-item ${category === item.value ? "active" : ""}`}
+              key={item.label} // Use label as key since value can be an array
+              className={`nav-item ${
+                (Array.isArray(category) && Array.isArray(item.value))
+                  ? category.join() === item.value.join()
+                  : category === item.value 
+                    ? "active" 
+                    : ""
+              }`}
               onClick={() => setCategory(item.value)}
             >
               <span className={`nav-dot ${item.dot}`}></span>
@@ -265,7 +288,13 @@ function App() {
 
         <div className="scroll-area">
           <div className="grid-header">
-            <span className="grid-title">{category === "" ? "All businesses" : category}</span>
+            <span className="grid-title">
+              {category === "" 
+                ? "All businesses" 
+                : Array.isArray(category) 
+                  ? category.join(" & ") 
+                  : category}
+            </span>
             <span className="grid-count">{filteredBusinesses.length} results</span>
           </div>
 
