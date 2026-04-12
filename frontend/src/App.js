@@ -54,9 +54,9 @@ function App() {
   const loadFavoritesFromBackend = async (userId) => {
     try {
       const res = await supabase
-        .table("favorites")
-        .select("business_id")
-        .eq("user_id", userId);
+      .from("favorites")
+      .select("business_id")
+      .eq("user_id", userId);
       if (res.data) {
         setFavorites(new Set(res.data.map(f => f.business_id)));
       }
