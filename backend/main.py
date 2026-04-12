@@ -114,3 +114,10 @@ def get_reviews_for_business(biz_id: int):
         return res.data
     except Exception as e:
         return {"error": str(e)}
+@app.get("/favorites/{user_id}")
+def get_user_favorites(user_id: str):
+    try:
+        res = supabase.table("favorites").select("business_id").eq("user_id", user_id).execute()
+        return res.data
+    except Exception as e:
+        return {"error": str(e)}
