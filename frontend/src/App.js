@@ -6,7 +6,7 @@ import './App.css';
 // --- MANUAL CONFIGURATION ---
 const SUPABASE_URL = "https://uuuqqzqcjsmvoardttnh.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1dXFxenFjanNtdm9hcmR0dG5oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0Mzg1NDgsImV4cCI6MjA5MTAxNDU0OH0.REOZUzFglYChEL5HG9dRIzHpGkSZ-VwAfkcR1V_v5HA";
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://locaroo.onrender.com";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
